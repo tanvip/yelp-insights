@@ -18,6 +18,12 @@ mapbox_access_token = 'pk.eyJ1Ijoic3BlbmNlcmxhd3JlbmNlIiwiYSI6ImNqYnhxdjFxdTJyOW
 app = dash.Dash()#'auth')
 server = app.server
 app.title = 'Yelp Insights'
+app.config['suppress_callback_exceptions']=True
+dma_options_dict = {'miami':[25.7616798,-80.1917902],
+						'atlanta':[33.74832,-84.39111],
+						'nyc':[40.71455,-74.00714],
+						'san-francisco':[37.77713,-122.41964],
+						'los-angeles':[34.05349,-118.24532]}
 
 same_session_comp = ["McDonald's",
 						"Subway",
@@ -85,11 +91,10 @@ app.layout = html.Div(
 @app.callback(Output('main-div', 'children'),  #main div callback
 				[Input('tabs', 'value')])
 
-def main_div(value):
-	if value == 'demand':
+def main_div(tab_value):
+	if tab_value == 'demand':
 
-		center_list = [25.7616798,-80.1917902]
-
+		center_list = dma_options_dict['miami']
 		data = [{'lat': 25.7616798,
 		        'lon': -80.1917902,
 		        'mode': 'markers',
@@ -136,7 +141,7 @@ def main_div(value):
 
 		return children
 
-	elif value == 'comp-set':
+	elif tab_value == 'comp-set':
 
 		children = [				
 				html.Div([
