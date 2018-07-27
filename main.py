@@ -48,7 +48,16 @@ same_session_comp_views = [6937,
 								20496,
 								23235,
 								27549]
-
+demand_dropdown_options = [
+			            {'label': 'Atlanta', 'value': 'atlanta'},
+			            {'label': 'Miami', 'value': 'miami'},
+			            {'label': 'New York City', 'value': 'nyc'},
+						{'label': 'Los Angeles', 'value': 'los-angeles'}]
+compset_dropdown_options = [
+			            {'label': 'Atlanta', 'value': 'atlanta'},
+			            {'label': 'Miami', 'value': 'miami'},
+			            {'label': 'New York City', 'value': 'nyc'},
+						{'label': 'Los Angeles', 'value': 'los-angeles'}]
 app.layout = html.Div(
 
 	style={'font-family':'Helvetica Neue',
@@ -74,8 +83,15 @@ app.layout = html.Div(
 			        ],
 			        value='demand',
 			        id='tabs',
+			        style={'marginBottom': '36px'},
 			        vertical=True
 			    ),
+			    html.Div(
+			    	id="dropdown-div",
+			    	children=[
+				    	dcc.Dropdown(
+			                id='dropdown',
+			                value='atlanta')]),
 			    html.Div(id='small-div')
 			], className = 'three columns'),		
 
@@ -89,12 +105,12 @@ app.layout = html.Div(
 ])])
 
 @app.callback(Output('main-div', 'children'),  #main div callback
-				[Input('tabs', 'value')])
-
-def main_div(tab_value):
+				[Input('tabs', 'value'),
+				Input('dropdown','value')])
+def main_div(tab_value, dropdown_value):
 	if tab_value == 'demand':
 
-		center_list = dma_options_dict['miami']
+		center_list = dma_options_dict[dropdown_value]
 		data = [{'lat': 25.7616798,
 		        'lon': -80.1917902,
 		        'mode': 'markers',
@@ -180,28 +196,33 @@ def main_div(tab_value):
 
 		return children 
 
+@app.callback(Output('dropdown-div', 'style'), # show/hide the dropdown element
+			[Input('tabs','value')])
+def show_hide_dropdown(value):
+	if value == 'demand':
+		return {'display': 'block'}
+	elif value == 'comp-set':
+		return {'display': 'block'}
+	else:
+		return {'display': 'none'}
+
+
+@app.callback(Output('dropdown', 'options'),  # change the dropdown options
+			[Input('tabs','value')])
+def change_dropdown_options(value):
+	if value == 'demand':
+		return  demand_dropdown_options
+	elif value == 'comp-set':
+		return  compset_dropdown_options
+	else:
+		return []
+
 @app.callback(Output('small-div', 'children'),  #main div callback
 				[Input('tabs', 'value')])
 
 def small_div_content(value):
 	if value == 'demand':
-		children=[html.Div(
-				style={'marginTop': '36px'},
-				children=[ #this is the div under tabs - should be variable
-				dcc.Dropdown(
-			        id='dma-drop',
-			        value='miami',
-			        options=[
-			            {'label': 'Atlanta', 'value': 'atlanta'},
-			            {'label': 'Miami', 'value': 'miami'},
-			            {'label': 'New York City', 'value': 'nyc'},
-			            {'label': 'Louisville', 'value': 'louisville'},
-						{'label': 'Los Angeles', 'value': 'los-angeles'},  
-						        ]
-						    )]
-
-					),
-				html.Div([
+		children=[html.Div([
 					dcc.Checklist(
 					    options=[
 					        {'label': 'Show Locations', 'value': 'show-locs'},
@@ -246,26 +267,13 @@ def small_div_content(value):
 					])
 
 				]
-		return children
-
-	elif value == 'comp-set':
-		children=[
-			html.Div(
-				style={'marginTop': '36px'},
-				children=[ #this is the div under tabs - should be variable
-				dcc.Dropdown(
-			        id='dma-drop',
-			        value='miami',
-			        options=[
-			            {'label': 'Atlanta', 'value': 'atlanta'},
-			            {'label': 'Miami', 'value': 'miami'},
-			            {'label': 'New York City', 'value': 'nyc'},
-			            {'label': 'Louisville', 'value': 'louisville'},
-						{'label': 'Los Angeles', 'value': 'los-angeles'},  
-						        ]
-						    )]
-					)]
-		return children
+	else:
+		children=[html.Div(
+			style={'marginTop': '36px','display': 'none'},
+			children=[ #this is the div under tabs - should be variable
+			])
+			]
+	return children
 
 app.css.append_css({
     'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'
